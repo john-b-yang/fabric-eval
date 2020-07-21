@@ -90,9 +90,9 @@ func (s *HashTimeLockContract) createProposal(stub shim.ChaincodeStubInterface, 
 	}
 
 	// Provided Handler Event
-	err = stub.SetEvent(proposal.Proposal.Handler+ProposalCreatedHandlerEvent, proposalEventAsBytes)
+	err = stub.SetEvent(proposal.Proposal.Handler+"_PROPOSAL_CREATED", proposalEventAsBytes)
 	// Timeout Client EVent
-	err = stub.SetEvent(ProposalCreateTimeoutEvent, proposalEventAsBytes)
+	err = stub.SetEvent("PROPOSAL_CREATED", proposalEventAsBytes)
 	return shim.Success(nil)
 }
 
@@ -160,7 +160,7 @@ func (s *HashTimeLockContract) confirmProposal(stub shim.ChaincodeStubInterface,
 	if err != nil {
 		return shim.Error("Error building proposal event definition - " + err.Error())
 	}
-	err = stub.SetEvent(ProposalConfirmedHandlerEvent, proposalEventAsBytes)
+	err = stub.SetEvent(P"PROPOSAL_CONFIRMED", proposalEventAsBytes)
 	return shim.Success(nil)
 }
 

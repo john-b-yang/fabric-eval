@@ -21,15 +21,9 @@ type proposalEntry struct {
 
 var validHashingAlgorithms = []string{"SHA256", "SHA384", "SHA512"}
 
-const ProposalCreatedHandlerEvent = "_PROPOSAL_CREATED"
-
-const ProposalCreateTimeoutEvent = "PROPOSAL_CREATED"
-
 type ProposalCreatedEventObject struct {
 	ProposalID string `json:"proposalId"`
 }
-
-const ProposalConfirmedHandlerEvent = "PROPOSAL_CONFIRMED"
 
 type ProposalConfirmedEventObject struct {
 	ProposalID string `json:"proposalId"`
