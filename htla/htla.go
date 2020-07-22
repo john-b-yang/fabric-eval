@@ -52,6 +52,11 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
+// LitmusTest is an easy method to check if the contract is initialized properly
+func (s *SmartContract) LitmusTest(ctx contractapi.TransactionContextInterface) string {
+	return "Hello, world."
+}
+
 // CreateProposal takes a proposal and a hash => entry tagged as PENDING
 // Returns a proposal id
 func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens uint16, timelock uint16, hash string, hashAlgorithm string) error {
@@ -99,24 +104,31 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 	return nil
 }
 
-// ConfirmProposal transitions a proposal from PENDING to CONFIRMED
-// Takes a proposalId and a pre-image that corresponds with the initially provided hash.
-func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterface, proposalID int, preImage string) error {
+// GetProposal retrieves the Proposal struct corresponding to the given Proposal ID
+func (s *SmartContract) GetProposal(ctx contractapi.TransactionContextInterface, proposalID int) (*Proposal, error) {
 	// Retrieving proposal from state hashmap
 	proposalBytes, err := ctx.GetStub().GetState(strconv.Itoa(proposalID))
 	if err != nil {
-		return fmt.Errorf("Error retrieving proposal with ID %d from state: %s", proposalID, err)
+		return nil, fmt.Errorf("Error retrieving proposal with ID %d from state: %s", proposalID, err)
 	}
 	if proposalBytes == nil {
-		return fmt.Errorf("Error, proposal with ID %d does not exist", proposalID)
+		return nil, fmt.Errorf("Error, proposal with ID %d does not exist", proposalID)
 	}
 
 	// Unmarshal proposal bytes into proposal struct
 	proposal := new(Proposal)
 	err = json.Unmarshal(proposalBytes, proposal)
 	if err != nil {
-		return fmt.Errorf("Error unmarshaling proposal bytes: %s", err)
+		return nil, fmt.Errorf("Error unmarshaling proposal bytes: %s", err)
 	}
+
+	return proposal, nil
+}
+
+// ConfirmProposal transitions a proposal from PENDING to CONFIRMED
+// Takes a proposalId and a pre-image that corresponds with the initially provided hash.
+func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterface, proposalID int, preImage string) error {
+	proposal, err := s.GetProposal(ctx, proposalID)
 
 	// Check if Proposal can be confirmed
 	if proposal.Status != Pending {
@@ -150,7 +162,7 @@ func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterf
 
 	// Update Proposal status to confirmed and Put into State
 	proposal.Status = Confirmed
-	proposalBytes, err = json.Marshal(proposal)
+	proposalBytes, err := json.Marshal(proposal)
 	if err != nil {
 		return fmt.Errorf("Error converting proposal to bytes: %s", err.Error())
 	}
@@ -165,21 +177,7 @@ func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterf
 // InvalidateProposal a proposal in PENDING state. (timelocking)
 // Fails if invoked on a CONFIRMED proposal.
 func (s *SmartContract) InvalidateProposal(ctx contractapi.TransactionContextInterface, proposalID int) error {
-	// Retrieving proposal from state hashmap
-	proposalBytes, err := ctx.GetStub().GetState(strconv.Itoa(proposalID))
-	if err != nil {
-		return fmt.Errorf("Error retrieving proposal with ID %d from state: %s", proposalID, err)
-	}
-	if proposalBytes == nil {
-		return fmt.Errorf("Error, proposal with ID %d does not exist", proposalID)
-	}
-
-	// Unmarshal proposal bytes into proposal struct
-	proposal := new(Proposal)
-	err = json.Unmarshal(proposalBytes, proposal)
-	if err != nil {
-		return fmt.Errorf("Error unmarshaling proposal bytes: %s", err)
-	}
+	proposal, err := s.GetProposal(ctx, proposalID)
 
 	// Check if Proposal can be invalidated
 	if proposal.Status != Pending {
@@ -192,7 +190,7 @@ func (s *SmartContract) InvalidateProposal(ctx contractapi.TransactionContextInt
 
 	// Update Proposal status to expired and Put into State
 	proposal.Status = Expired
-	proposalBytes, err = json.Marshal(proposal)
+	proposalBytes, err := json.Marshal(proposal)
 	if err != nil {
 		return fmt.Errorf("Error converting proposal to bytes: %s", err.Error())
 	}
