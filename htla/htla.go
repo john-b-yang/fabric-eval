@@ -30,7 +30,7 @@ const (
 
 // Proposal struct for hlta exchange information
 type Proposal struct {
-	Amount        uint16         `json:"amount"`
+	Amount        int            `json:"amount"`
 	Hash          string         `json:"hash"`
 	HashAlgorithm string         `json:"hashAlgorithm"`
 	Status        ProposalStatus `json:"status"`
@@ -39,12 +39,12 @@ type Proposal struct {
 
 // SmartContract provides functions for managing exchange
 type SmartContract struct {
-	contractapi.Contract
+	contractapi.Contract // TODO, type aliasing?
 }
 
 // QueryResult structure used for handling result of query
 type QueryResult struct {
-	Placeholder string
+	Placeholder string // TODO, is struct required for returns
 }
 
 // InitLedger initializes the htla exchange
@@ -79,7 +79,7 @@ func (s *SmartContract) GenerateHash(ctx contractapi.TransactionContextInterface
 
 // CreateProposal takes a proposal and a hash => entry tagged as PENDING
 // Returns a proposal id
-func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens uint16, timelock uint16, hash string, hashAlgorithm string) error {
+func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens int, timelock int, hash string, hashAlgorithm string) error {
 	// Check if hashing algorithm is supported
 	var isValidHash = false
 	for _, a := range validHashingAlgorithms {
@@ -223,6 +223,7 @@ func (s *SmartContract) InvalidateProposal(ctx contractapi.TransactionContextInt
 }
 
 func main() {
+	// TODO: Key collisions for 2 different contracts committing same key values
 	counter = 0
 	chaincode, err := contractapi.NewChaincode(new(SmartContract))
 

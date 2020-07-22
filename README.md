@@ -2,7 +2,7 @@
 Collection of popular Ethereum standards. Repository for contracts written in Golang for the Hyperledger Fabric platform.
 
 ### Deploy Application Code to Test Network
-([Reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/chaincode_lifecycle.html))
+([Reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html))
 
 **1. Create Package of Application Code** <br>
 Ensure that GOPATH, PATH for golang are set
