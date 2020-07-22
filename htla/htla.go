@@ -57,6 +57,26 @@ func (s *SmartContract) LitmusTest(ctx contractapi.TransactionContextInterface) 
 	return "Hello, world."
 }
 
+// GenerateHash returns a hash string from an input string and a specified hashing function
+func (s *SmartContract) GenerateHash(ctx contractapi.TransactionContextInterface, input string, hashAlgorithm string) (string, error) {
+	var hasher hash.Hash
+	switch hashAlgorithm {
+	case "SHA256":
+		hasher = sha256.New()
+		break
+	case "SHA384":
+		hasher = sha512.New384()
+		break
+	case "SHA512":
+		hasher = sha512.New()
+		break
+	default:
+		return "", fmt.Errorf("Error, hash algorithm recorded in proposal is unsupported")
+	}
+	hasher.Write([]byte(input))
+	return hex.EncodeToString(hasher.Sum(nil)), nil
+}
+
 // CreateProposal takes a proposal and a hash => entry tagged as PENDING
 // Returns a proposal id
 func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens uint16, timelock uint16, hash string, hashAlgorithm string) error {
