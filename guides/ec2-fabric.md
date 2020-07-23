@@ -1,37 +1,47 @@
-# Deploy Application Code to Test Network
+# Set Up Hyperledger Fabric on AWS EC2 Instance
 
-This is a walkthrough on how to deploy a custom application to the Fabric test network provided in the `fabric-samples` repository. ([Reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html))
+**General Notes**
+* Avoid using `sudo` beyond installation purposes. The `./network.sh` script may not run properly if `sudo` was used inconsistently due to incorrectly created file permissions.
 
 ### Instructions
-**0. Before Beginning**
-* This tutorial assumes `docker`, `go`, and `fabric` are installed
-* Ensure that GOPATH, PATH for `golang` are set
-* Ensure the test network is running with a channel (i.e. `./network.sh up createChannel`)
+**1. Configuring EC2 Instance**
+1. Navigate to the "EC2" service within AWS Console
+2. Click "Launch Instance"
+3. For AMI, select "Ubuntu Server 18.04 LTS"
+4. For Instance Type, select "t2.micro (Free Tier Eligible)"
+5. Click "Launch" (bottom right). No extra configs necessary.
 
-**1. Create Package for Application Code** ([Reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html#go))
+**2. Login + Set Up EC2 Environment**
+1. Make sure instance is in "running" state
+2. Locally, ssh into EC2 instance (i.e. `ssh -i <key file (*.pem)> ubuntu@<public DNS>`)
+3. Grant `sudo` privileges to a user type: `sudo usermod -aG sudo ${USER}`
+4. Run the following 2 commands:
+    * `sudo apt-get install curl`
+    * `sudo apt-get update`
 
-1. Navigate to fabcar source code: `cd ~/fabric-samples/chaincode/fabcar/go/`
-2. Replace existing fabcar code: `vi fabcar.go`
-    * Delete existing code (`esc`, `:`, `ggdG`)
-    * Paste in application code
-3. Follow Remaining Steps
-    * `GO111MODULE=on go mod vendor`
-    * Install relevant binaries + CLI (i.e. `peer`)
-        * `export PATH=${PWD}/../bin:${PWD}:$PATH`
-        * `export FABRIC_CFG_PATH=$PWD/../config/`
-    * Set `CORE_PEER_MSPCONFIGPATH`
-4. Create Chaincode Package: `peer lifecycle chaincode package <package name> --path ../chaincode/fabcar/go/ --lang golang --label <label>`
+**3. Install + Upgrade Docker, Docker Compose**
+1. `sudo apt-get install docker`
+2. `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add`
+3. `sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"`
+4. `sudo apt-get update`
+5. `apt-cache policy docker-ce`
+6. `sudo apt-get install -y docker-ce`
+7. `sudo apt-get install docker-compose`
+8. `sudo apt-get upgrade`
+9. `sudo usermod -aG docker ${USER}` (Explanation: [Link](https://www.digitalocean.com/community/questions/how-to-fix-docker-got-permission-denied-while-trying-to-connect-to-the-docker-daemon-socket))
+10. Log out, then back in for Step 9 to take effect.
 
-**2. Install Chaincode Package**: Follow given steps ([Reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html#install-the-chaincode-package))
+**4. Install Go (1.14.4)**
+1. `wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz`
+2. `tar -xzvf go1.14.4.linux-amd64.tar.gz`
+3. `sudo mv go/ /usr/local`
+4. `export GOPATH=$HOME/go`
+5. `export PATH=$PATH:/usr/local/go/bin`
 
-**3. Approve Chaincode Definition**: Follow given steps ([reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html#approve-a-chaincode-definition))
-* Note: `CC_PACKAGE_ID=<Output of queryinstalled>`
+**5. Fabric Installation**: `curl -sSL https://bit.ly/2ysbOFE | bash -s`
 
-**4. Commit + Invoke Chaincode Definition to Channel**: Follow given steps ([reference](https://hyperledger-fabric.readthedocs.io/en/release-2.0/deploy_chaincode.html#committing-the-chaincode-definition-to-the-channel))
-
-### Helpful Links
-* Hyperledger Fabric Go Contract [link](https://github.com/hyperledger/fabric-contract-api-go)
-* ERC 20 in Hyperledger Fabric [example](https://medium.com/coinmonks/erc20-token-as-hyperledger-fabric-golang-chaincode-d09dfd16a339)
-* `cckit`: 3rd party [tool](https://github.com/s7techlab/cckit) for building Fabric contracts
-* Hyperledger Fabric readthedocs [link](https://hyperledger-fabric.readthedocs.io/en/release-2.0/)
-* HTLC Example [link](https://github.com/CallanHP/hlf-htla-proof-of-concept)
+**6. Verify Installs**
+* `curl --version`
+* `go version`
+* `docker --version`
+* `docker-compose --version`
