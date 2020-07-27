@@ -12,11 +12,11 @@ This is a walkthrough on how to deploy a custom application to the Fabric test n
 
 1. Navigate to fabcar source code: `cd ~/fabric-samples/chaincode/fabcar/go/`
 2. Replace existing fabcar code: `vi fabcar.go`
-    * Delete existing code (`esc`, `:`, `ggdG`)
+    * Delete existing code (`esc`, `ggdG`)
     * Paste in application code
 3. Follow Remaining Steps
-    * `GO111MODULE=on go mod vendor`
-    * Install relevant binaries + CLI (i.e. `peer`)
+    * `go mod vendor`
+    * Install relevant binaries + CLI (`cd` back into `~/fabric-samples/test-network/`
         * `export PATH=${PWD}/../bin:${PWD}:$PATH`
         * `export FABRIC_CFG_PATH=$PWD/../config/`
     * Set `CORE_PEER_MSPCONFIGPATH`

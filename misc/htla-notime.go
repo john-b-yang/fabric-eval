@@ -9,7 +9,6 @@ import (
 	"hash"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -34,7 +33,6 @@ type Proposal struct {
 	Hash          string         `json:"hash"`
 	HashAlgorithm string         `json:"hashAlgorithm"`
 	Status        ProposalStatus `json:"status"`
-	Timelock      time.Time      `json:"timelock"`
 }
 
 // SmartContract provides functions for managing exchange
@@ -79,7 +77,7 @@ func (s *SmartContract) GenerateHash(ctx contractapi.TransactionContextInterface
 
 // CreateProposal takes a proposal and a hash => entry tagged as PENDING
 // Returns a proposal id
-func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens int, timelock int, hash string, hashAlgorithm string) (int, error) {
+func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens int, hash string, hashAlgorithm string) (int, error) {
 	// Check if hashing algorithm is supported
 	var isValidHash = false
 	for _, a := range validHashingAlgorithms {
@@ -96,18 +94,12 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 		return -1, fmt.Errorf("Tokens in transaction cannot be 0")
 	}
 
-	// Check if `timelock` is non-zero
-	if timelock == 0 {
-		return -1, fmt.Errorf("Duration of timelock cannot be 0")
-	}
-
 	// Create new proposal struct
 	newProposal := Proposal{
 		Amount:        tokens,
 		Hash:          hash,
 		HashAlgorithm: hashAlgorithm,
 		Status:        Pending,
-		Timelock:      (time.Now().Add(time.Duration(timelock) * time.Second)),
 	}
 
 	// Convert Proposal to Bytes and Put into State
@@ -155,10 +147,6 @@ func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterf
 		return fmt.Errorf("Error, proposal has already been resolved")
 	}
 
-	if time.Now().After(proposal.Timelock) {
-		return fmt.Errorf("Error, timelock has expired, proposal cannot be confirmed")
-	}
-
 	// Check if pre image matches original hash
 	var hasher hash.Hash
 	switch proposal.HashAlgorithm {
@@ -202,10 +190,6 @@ func (s *SmartContract) InvalidateProposal(ctx contractapi.TransactionContextInt
 	// Check if Proposal can be invalidated
 	if proposal.Status != Pending {
 		return fmt.Errorf("Error, proposal has already been resolved")
-	}
-
-	if time.Now().Before(proposal.Timelock) {
-		return fmt.Errorf("Error, timelock has not expired, proposal cannot be invalidated")
 	}
 
 	// Update Proposal status to expired and Put into State

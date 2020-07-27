@@ -37,6 +37,7 @@
 3. `sudo mv go/ /usr/local`
 4. `export GOPATH=$HOME/go`
 5. `export PATH=$PATH:/usr/local/go/bin`
+6. `rm -rf go1.14.4.linux-amd64.tar.gz`
 
 **5. Fabric Installation**: `curl -sSL https://bit.ly/2ysbOFE | bash -s`
 
