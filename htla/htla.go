@@ -43,11 +43,6 @@ type SmartContract struct {
 	contractapi.Contract // TODO, type aliasing?
 }
 
-// QueryResult structure used for handling result of query
-type QueryResult struct {
-	Placeholder string // TODO, is struct required for returns
-}
-
 // InitLedger initializes the htla exchange
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	return nil
@@ -93,13 +88,13 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 	}
 
 	// Check if `tokens` is non-zero
-	if tokens == 0 {
-		return -1, fmt.Errorf("Tokens in transaction cannot be 0")
+	if tokens <= 0 {
+		return -1, fmt.Errorf("Tokens of transaction must be positive integer")
 	}
 
 	// Check if `timelock` is non-zero
-	if duration == 0 {
-		return -1, fmt.Errorf("Duration of timelock cannot be 0")
+	if duration <= 0 {
+		return -1, fmt.Errorf("Duration of timelock must be positive integer")
 	}
 
 	xactTimestamp, err := ctx.GetStub().GetTxTimestamp()
