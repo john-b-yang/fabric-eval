@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -79,7 +80,7 @@ func (s *SmartContract) GenerateHash(ctx contractapi.TransactionContextInterface
 
 // CreateProposal takes a proposal and a hash => entry tagged as PENDING
 // Returns a proposal id
-func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens int, timelock int, hash string, hashAlgorithm string) (int, error) {
+func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterface, tokens int, duration int, hash string, hashAlgorithm string) (int, error) {
 	// Check if hashing algorithm is supported
 	var isValidHash = false
 	for _, a := range validHashingAlgorithms {
@@ -97,8 +98,18 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 	}
 
 	// Check if `timelock` is non-zero
-	if timelock == 0 {
+	if duration == 0 {
 		return -1, fmt.Errorf("Duration of timelock cannot be 0")
+	}
+
+	xactTimestamp, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return -1, fmt.Errorf("Error retrieving transaction timestamp: %s", err)
+	}
+
+	xactTime, err := ptypes.Timestamp(xactTimestamp)
+	if err != nil {
+		return -1, fmt.Errorf("Error converting transaction timestamp to time.Time object: %s", err)
 	}
 
 	// Create new proposal struct
@@ -107,7 +118,7 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 		Hash:          hash,
 		HashAlgorithm: hashAlgorithm,
 		Status:        Pending,
-		Timelock:      (time.Now().Add(time.Duration(timelock) * time.Second)),
+		Timelock:      xactTime.Add(time.Duration(duration) * time.Second),
 	}
 
 	// Convert Proposal to Bytes and Put into State
@@ -121,7 +132,7 @@ func (s *SmartContract) CreateProposal(ctx contractapi.TransactionContextInterfa
 	}
 	counter++
 
-	return counter, nil
+	return counter - 1, nil
 }
 
 // GetProposal retrieves the Proposal struct corresponding to the given Proposal ID
@@ -155,7 +166,17 @@ func (s *SmartContract) ConfirmProposal(ctx contractapi.TransactionContextInterf
 		return fmt.Errorf("Error, proposal has already been resolved")
 	}
 
-	if time.Now().After(proposal.Timelock) {
+	xactTimestamp, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return fmt.Errorf("Error retrieving transaction timestamp: %s", err)
+	}
+
+	xactTime, err := ptypes.Timestamp(xactTimestamp)
+	if err != nil {
+		return fmt.Errorf("Error converting transaction timestamp to time.Time object: %s", err)
+	}
+
+	if xactTime.After(proposal.Timelock) {
 		return fmt.Errorf("Error, timelock has expired, proposal cannot be confirmed")
 	}
 
@@ -204,7 +225,17 @@ func (s *SmartContract) InvalidateProposal(ctx contractapi.TransactionContextInt
 		return fmt.Errorf("Error, proposal has already been resolved")
 	}
 
-	if time.Now().Before(proposal.Timelock) {
+	xactTimestamp, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return fmt.Errorf("Error retrieving transaction timestamp: %s", err)
+	}
+
+	xactTime, err := ptypes.Timestamp(xactTimestamp)
+	if err != nil {
+		return fmt.Errorf("Error converting transaction timestamp to time.Time object: %s", err)
+	}
+
+	if xactTime.Before(proposal.Timelock) {
 		return fmt.Errorf("Error, timelock has not expired, proposal cannot be invalidated")
 	}
 
