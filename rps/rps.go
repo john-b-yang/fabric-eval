@@ -31,6 +31,7 @@ const (
 	GameOver
 )
 
+// UNSET constant for indicating if player choice is not set
 const UNSET = "unset"
 
 // SmartContract provides functions for managing exchange
@@ -38,6 +39,7 @@ type SmartContract struct {
 	contractapi.Contract // TODO, type aliasing?
 }
 
+// GetGameData is a helper function for retrieving RPS game data from transaction history
 func (s *SmartContract) GetGameData(ctx contractapi.TransactionContextInterface, gameID string) (*Game, error) {
 	gameBytes, err := ctx.GetStub().GetState(gameID)
 	if err != nil {
@@ -57,7 +59,7 @@ func (s *SmartContract) GetGameData(ctx contractapi.TransactionContextInterface,
 	return game, nil
 }
 
-// InitLedger opens the auction bidding process
+// InitLedger initializes the RPS game and allows players to join
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	newGame := Game{
 		GameID: uuid.New().String(),
