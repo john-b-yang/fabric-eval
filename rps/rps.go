@@ -39,8 +39,8 @@ type SmartContract struct {
 	contractapi.Contract // TODO, type aliasing?
 }
 
-// GetGameData is a helper function for retrieving RPS game data from transaction history
-func (s *SmartContract) GetGameData(ctx contractapi.TransactionContextInterface, gameID string) (*Game, error) {
+// getGame is a helper function for retrieving RPS game data from transaction history
+func (s *SmartContract) getGame(ctx contractapi.TransactionContextInterface, gameID string) (*Game, error) {
 	gameBytes, err := ctx.GetStub().GetState(gameID)
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving game data with ID %s from state: %s", gameID, err)
@@ -59,26 +59,34 @@ func (s *SmartContract) GetGameData(ctx contractapi.TransactionContextInterface,
 	return game, nil
 }
 
+func (s *SmartContract) putGame(ctx contractapi.TransactionContextInterface, game Game) error {
+	gameBytes, err := json.Marshal(game)
+	if err != nil {
+		return fmt.Errorf("Error converting game data to bytes: %s", err.Error())
+	}
+	err = ctx.GetStub().PutState(game.GameID, gameBytes)
+	if err != nil {
+		return fmt.Errorf("Error writing proposal bytes to state: %s", err.Error())
+	}
+	return nil
+}
+
 // InitLedger initializes the RPS game and allows players to join
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	newGame := Game{
 		GameID: uuid.New().String(),
 		Status: Open,
 	}
-	newGameBytes, err := json.Marshal(newGame)
+	err := s.putGame(ctx, newGame)
 	if err != nil {
-		return fmt.Errorf("Error converting game data to bytes: %s", err.Error())
-	}
-	err = ctx.GetStub().PutState(newGame.GameID, newGameBytes)
-	if err != nil {
-		return fmt.Errorf("Error writing game data bytes to state: %s", err.Error())
+		return err
 	}
 	return nil
 }
 
 // JoinGame allows players to join a game of RPS
 func (s *SmartContract) JoinGame(ctx contractapi.TransactionContextInterface, gameID string) error {
-	game, err := s.GetGameData(ctx, gameID)
+	game, err := s.getGame(ctx, gameID)
 	if err != nil {
 		return err
 	}
@@ -92,13 +100,9 @@ func (s *SmartContract) JoinGame(ctx contractapi.TransactionContextInterface, ga
 		game.Status = ChoosePlay
 	}
 
-	gameBytes, err := json.Marshal(game)
+	err = s.putGame(ctx, *game)
 	if err != nil {
-		return fmt.Errorf("Error converting game data to bytes: %s", err.Error())
-	}
-	err = ctx.GetStub().PutState(game.GameID, gameBytes)
-	if err != nil {
-		return fmt.Errorf("Error writing proposal bytes to state: %s", err.Error())
+		return err
 	}
 	return nil
 }
@@ -108,7 +112,7 @@ func (s *SmartContract) MakeChoice(ctx contractapi.TransactionContextInterface, 
 	if choice < 0 || choice > 2 {
 		return fmt.Errorf("Error, invalid choice: must be 0 (rock), 1 (paper), or 2 (scissors)")
 	}
-	game, err := s.GetGameData(ctx, gameID)
+	game, err := s.getGame(ctx, gameID)
 	if err != nil {
 		return err
 	}
@@ -134,20 +138,16 @@ func (s *SmartContract) MakeChoice(ctx contractapi.TransactionContextInterface, 
 		game.Status = RevealPlay
 	}
 
-	gameBytes, err := json.Marshal(game)
+	err = s.putGame(ctx, *game)
 	if err != nil {
-		return fmt.Errorf("Error converting game data to bytes: %s", err.Error())
-	}
-	err = ctx.GetStub().PutState(game.GameID, gameBytes)
-	if err != nil {
-		return fmt.Errorf("Error writing proposal bytes to state: %s", err.Error())
+		return err
 	}
 	return nil
 }
 
 // RevealChoice allows players to reveal the players' choices to determine the winner
 func (s *SmartContract) RevealChoice(ctx contractapi.TransactionContextInterface, gameID string, choice int, hash string) error {
-	game, err := s.GetGameData(ctx, gameID)
+	game, err := s.getGame(ctx, gameID)
 	if err != nil {
 		return err
 	}
@@ -178,20 +178,16 @@ func (s *SmartContract) RevealChoice(ctx contractapi.TransactionContextInterface
 		game.Status = GameOver
 	}
 
-	gameBytes, err := json.Marshal(game)
+	err = s.putGame(ctx, *game)
 	if err != nil {
-		return fmt.Errorf("Error converting game data to bytes: %s", err.Error())
-	}
-	err = ctx.GetStub().PutState(game.GameID, gameBytes)
-	if err != nil {
-		return fmt.Errorf("Error writing proposal bytes to state: %s", err.Error())
+		return err
 	}
 	return nil
 }
 
 // DetermineWinner returns which player won the game
 func (s *SmartContract) DetermineWinner(ctx contractapi.TransactionContextInterface, gameID string) (cid.ClientIdentity, error) {
-	game, err := s.GetGameData(ctx, gameID)
+	game, err := s.getGame(ctx, gameID)
 	if err != nil {
 		return nil, err
 	}
@@ -221,13 +217,9 @@ func (s *SmartContract) DetermineWinner(ctx contractapi.TransactionContextInterf
 		game.Winner = nil
 	}
 
-	gameBytes, err := json.Marshal(game)
+	err = s.putGame(ctx, *game)
 	if err != nil {
-		return nil, fmt.Errorf("Error converting game data to bytes: %s", err.Error())
-	}
-	err = ctx.GetStub().PutState(game.GameID, gameBytes)
-	if err != nil {
-		return nil, fmt.Errorf("Error writing proposal bytes to state: %s", err.Error())
+		return nil, err
 	}
 	return game.Winner, nil
 }
