@@ -3,18 +3,20 @@
 This guide provides documentation for locally setting up a Fabric Network (in `network` folder of this repository).
 
 ## Getting Started
-1. Install relevant languages and tools
-  * Docker, Docker-Compose
-  * Golang (Version 1.13 or higher)
-  * Python (3 or higher)
+1. Install relevant languages and tools: Docker, Docker-Compose, Golang (Version 1.13 or higher), Python (3 or higher)
 2. Clone this repository.
 3. `curl -sSL https://bit.ly/2ysbOFE | bash -s` to download the necessary Docker images. You may remove the additional `fabric-samples` repo if you'd like.
 4. Add the `cli-tools` directory to your path so that the `peer`, `cryptogen`, and additional command line tools for operating the network can be referenced (i.e. `export PATH="~/fabric-eval/cli-tools:$PATH"`).
 5. `cd` into the `network` folder.
 6. `./start.sh` will
-  * Spawn 2 Organizations, 2 Peers per Org, 1 CA per Org, and a State Database (Couch DB)
-  * Create a Channel that peers from Org1 will be added to.
-  * Compile and deploy chaincode to the channel.
+  - Spawn 2 Organizations, 2 Peers per Org, 1 CA per Org, and a State Database (Couch DB)
+  - Create a Channel that peers from Org1 will be added to.
+  - Compile and deploy chaincode to the channel.
+
+## Commands Cheat Sheet
+* Bring up the network: `docker-compose up -d` (without `-d`, network logs will be displayed).
+* Bring down the network: `docker-compose down`
+* Deploy Chaincode: Refer to directions in `local-deploy.md`
 
 ## Repository Layout
 The following is a general layout of the network repository's configuration files (*not* shell scripts, which are described in the following section).
@@ -22,16 +24,20 @@ The following is a general layout of the network repository's configuration file
 **artifacts/**: Contains scripts and assets for initializing the network
   * *channel/*: Artifacts (crypto, configurations, settings)
     * `config`: Values from [here](https://github.com/hyperledger/fabric/tree/master/sampleconfig)
-      * `configtx`: Defines properties of network components including channel, transaction, profile, orderer, application, capabilities, etc.
+      * `configtx`: Defines network components' properties including channel, transaction, profile, orderer, application, capabilities, etc.
       * `core`: Basic configuration option for various peer modules
       * `orderer`: Same as `core`, but for core modules.
     * `crypto-config`: Generated from running `./create-artifacts.sh`. Each folder contains each organization's certificate authority, MSP, orderer nodes, tls/ca assets, and associated users (a.k.a. peers)
       * `ordererOrganizations`
       * `peerOrganizations`
-  * *src/*: Contains source code and API for Chaincode
-    * `github.com/`
-      * `fabcar`: Directory contains raw Chaincode source code + dependencies, written in Go. The `deployChaincode.sh` script will compile the source code in this directory, generate a tarball, and deploy it to a user provided channel.
+  * *src/github.com/*: Contains source code and API for Chaincode
+    * `fabcar`: Directory contains raw Chaincode source code + dependencies, written in Go. The `deployChaincode.sh` script will compile the source code in this directory, generate a tarball, and deploy it to a user provided channel.
   * *private-data/*: Contains configurations for [collections](https://hyperledger-fabric.readthedocs.io/en/release-2.2/private-data-arch.html). (Not important to network infra)
+
+## Configurations Explanations
+**Network Settings**: (`artifacts/docker-compose.yaml`) Define the containers for the networks and services that will be created upon `docker-compose up -d`.
+* Services: Certificate Authority Organizations, Orderers, CouchDB, Peers
+* Configurations: Container name, Docker image, environment variable values, ports, networks, volumes (disk for persistence)
 
 ## Scripts Explanations
 **Create Channel**: (`createChannel.sh`) Creates peers, organizations, and adds them to new channel
