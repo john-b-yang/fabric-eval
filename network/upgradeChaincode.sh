@@ -170,7 +170,7 @@ checkCommitReadyness() {
 
 # checkCommitReadyness
 
-commitChaincodeDefination() {
+commitChaincodeDefinition() {
     setGlobalsForPeer0Org1
     peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
@@ -182,7 +182,7 @@ commitChaincodeDefination() {
 
 }
 
-# commitChaincodeDefination
+# commitChaincodeDefinition
 
 queryCommitted() {
     setGlobalsForPeer0Org1
@@ -279,7 +279,7 @@ approveForMyOrg1
 checkCommitReadyness
 approveForMyOrg2
 checkCommitReadyness
-commitChaincodeDefination
+commitChaincodeDefinition
 queryCommitted
 chaincodeInvokeInit
 sleep 5

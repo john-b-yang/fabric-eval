@@ -47,12 +47,17 @@ The following is a general layout of the network repository's configuration file
   * `--cafile` Path to trusted certificate of orderer endpoint
 * Send configtx update file to the channel with `peer channel update`
 
-**Deploy Chaincode**: (`deployChaincode.sh`) Deploys chaincode in `./artifacts/src/github.com/fabcar/go` repository to channel
-* Package and write chaincode to a file with `peer lifecycle chaincode package`. Must specify:
-  * `--path` Path to write to
-  * `--lang` Language chaincode is written in
-  * `--label` Package name
-*
+**Deploy Chaincode**: (`deployChaincode.sh`) Deploys chaincode in `./artifacts/src/github.com/fabcar/go` repository to channel. Sequential, it does the following step by step. Make sure network is up and running to ensure the below steps will work.
+1. Define configurations and variables for network and each peer. The `set...` functions set the environment variables to be a particular peer, allowing for easy role assumption.
+2. `presetup`: Download all dependencies for chaincode in `./artifacts/src/github.com/fabcar`.
+3. `packageChaincode`: Invokes `peer lifecycle chaincode package` function to generate tarball of Chaincode source code.
+4. `installChaincode`: Invokes `peer lifecycle chaincode install` function such that each peer installs `.tar.gz` file of chaincode.
+5. `queryInstalled`: (Not necessary) Checks if chaincode was installed successfully on a peer.
+6. `approveForMyOrg1/2`: A peer (w/ correct permissions) fires a transaction that indicates an installed Chaincode package should be approved for its organization using `approveformyorg` call.
+7. `checkCommitReadyness`: Check if chaincode is ready to be committed. In other words, if it has enough approval (approval >= 51%).
+8. `commitChaincodeDefinition`: Commits chaincode to channel, succeeds if approval is reached.
+9. `queryCommitted`
+10. `chaincodeInvokeInit`, then invoke and query.
 
 **Create Crypto Artifacts**: (`artifacts/channel/create-artifacts.sh`) Creates relevant crypto artifacts that are building blocks for permissions in the network.
 * Removes existing artifacts upon start up of network

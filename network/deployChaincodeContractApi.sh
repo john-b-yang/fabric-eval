@@ -147,7 +147,7 @@ checkCommitReadyness(){
     echo "===================== checking commit readyness from org 1 ===================== "
 }
 
-commitChaincodeDefination(){
+commitChaincodeDefinition(){
     setGlobalsForPeer0Org1
 
     peer lifecycle chaincode commit -o localhost:7050 \
@@ -235,7 +235,7 @@ chaincodeQuery(){
 # checkCommitReadyness
 # approveForMyOrg2
 # checkCommitReadyness
-# commitChaincodeDefination
+# commitChaincodeDefinition
 # queryCommitted
 # chaincodeInvokeInit
 chaincodeInvoke
