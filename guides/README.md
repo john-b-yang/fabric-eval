@@ -1,6 +1,10 @@
 # Guides
 List of tutorials created for working with Hyperledger Fabric
 
-**Recommended Order**
-1. `ec-Fabric`: How to deploy Fabric on an Amazon EC2 Instance
-2. `deploy-test-app`: Deploy Fabric applications onto a test network
+**For Test Network Development**
+* `ec2-fabric`: How to deploy Fabric test network on an Amazon EC2 Instance
+* `ec2-deploy`: Deploy Chaincode applications onto a Fabric test network
+
+**For Local Network Development**
+* `local-fabric`: How to deploy a Fabric network locally
+* `local-deploy`: Deploy Chaincode applications onto a local Fabric network
