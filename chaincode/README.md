@@ -40,3 +40,8 @@ Relative to Solidity, these are notes regarding where the development process fo
 * Fabric has a large repository of open source Go SDKs + APIs, [one](https://godoc.org/github.com/hyperledger/fabric-contract-api-go/contractapi) of which is for Chaincode development.
 * Self reference keywords like `this` or `self` do not exist. The [TransactionContextInterface](https://godoc.org/github.com/hyperledger/fabric-contract-api-go/contractapi#TransactionContextInterface) contains information per transaction invocation, including the client identity.
 * Go's plethora of data structures allow for more expressive and dynamic app logic than Solidity.
+
+## Chaincode Lifecycle
+Unlike Ethereum, which allows any developer to ship any smart contract to the network for immediate use, there is a Chaincode "lifecycle" enforced by Fabric, a design motivated by introducing more security and privilege when invoking transactions in a permissioned network.
+
+The lifecycle is: 1. Package => 2. Install => 3. Query => 4. Approve (by Organizations) => 5. Check Commit REadyness => 6. Commit => 7. Query Committed Chaincode (by Peer) => 8. Invoke `Init` function of Chaincode => 9. `Invoke`, `Query` Chaincode functions.

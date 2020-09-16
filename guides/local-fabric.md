@@ -16,6 +16,23 @@ This guide provides documentation for locally setting up a Fabric Network (in `n
   * Create a Channel that peers from Org1 will be added to.
   * Compile and deploy chaincode to the channel.
 
+## Repository Layout
+The following is a general layout of the network repository's configuration files (*not* shell scripts, which are described in the following section).
+
+**artifacts/**: Contains scripts and assets for initializing the network
+  * *channel/*: Artifacts (crypto, configurations, settings)
+    * `config`: Values from [here](https://github.com/hyperledger/fabric/tree/master/sampleconfig)
+      * `configtx`: Defines properties of network components including channel, transaction, profile, orderer, application, capabilities, etc.
+      * `core`: Basic configuration option for various peer modules
+      * `orderer`: Same as `core`, but for core modules.
+    * `crypto-config`: Generated from running `./create-artifacts.sh`. Each folder contains each organization's certificate authority, MSP, orderer nodes, tls/ca assets, and associated users (a.k.a. peers)
+      * `ordererOrganizations`
+      * `peerOrganizations`
+  * *src/*: Contains source code and API for Chaincode
+    * `github.com/`
+      * `fabcar`: Directory contains raw Chaincode source code + dependencies, written in Go. The `deployChaincode.sh` script will compile the source code in this directory, generate a tarball, and deploy it to a user provided channel.
+  * *private-data/*: Contains configurations for [collections](https://hyperledger-fabric.readthedocs.io/en/release-2.2/private-data-arch.html). (Not important to network infra)
+
 ## Scripts Explanations
 **Create Channel**: (`createChannel.sh`) Creates peers, organizations, and adds them to new channel
 * Enables TLS client authentication on a peer node (`CORE_PEER_TLS_ENABLED`)
@@ -36,6 +53,12 @@ This guide provides documentation for locally setting up a Fabric Network (in `n
   * `--lang` Language chaincode is written in
   * `--label` Package name
 *
+
+**Create Crypto Artifacts**: (`artifacts/channel/create-artifacts.sh`) Creates relevant crypto artifacts that are building blocks for permissions in the network.
+* Removes existing artifacts upon start up of network
+* Generates crypto artifacts with `cryptogen` tool based on configurations in `crypto-config.yaml` file in same directory and places them in `crypto-config/` folder.
+* Generate system genesis block and channel configuration block with `configtxgen` tool.
+* Later on, these crypto assets are used and referenced by higher level scripts.
 
 ## Credits
 * [BasicNetwork](https://github.com/adhavpavan/BasicNetwork-2.0): Repository our network is based on.
