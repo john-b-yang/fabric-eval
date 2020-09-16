@@ -1,3 +1,7 @@
 # Deploy Application Code to Local Network
 
-TBD
+```
+docker-compose -f ./artifacts/docker-compose.yaml up -d
+./createChannel.sh
+./deployChaincode.sh
+```
