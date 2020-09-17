@@ -12,7 +12,6 @@ setGlobalsForOrderer() {
     export CORE_PEER_LOCALMSPID="OrdererMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/artifacts/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp
-
 }
 
 setGlobalsForPeer0Org1() {
@@ -36,7 +35,6 @@ setGlobalsForPeer0Org2() {
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
     export CORE_PEER_ADDRESS=localhost:9051
-
 }
 
 setGlobalsForPeer1Org2() {
@@ -44,7 +42,6 @@ setGlobalsForPeer1Org2() {
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
     export CORE_PEER_ADDRESS=localhost:10051
-
 }
 
 presetup() {
@@ -192,7 +189,6 @@ commitChaincodeDefinition() {
         --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
         --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --version ${VERSION} --sequence ${VERSION} --init-required
-
 }
 
 # commitChaincodeDefinition
@@ -200,7 +196,6 @@ commitChaincodeDefinition() {
 queryCommitted() {
     setGlobalsForPeer0Org1
     peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name ${CC_NAME}
-
 }
 
 # queryCommitted
@@ -214,7 +209,6 @@ chaincodeInvokeInit() {
         --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
         --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --isInit -c '{"Args":[]}'
-
 }
 
 # chaincodeInvokeInit
@@ -294,7 +288,7 @@ checkCommitReadyness
 commitChaincodeDefinition
 queryCommitted
 chaincodeInvokeInit
-sleep 5
-chaincodeInvoke
-sleep 3
-chaincodeQuery
+# sleep 5
+# chaincodeInvoke
+# sleep 3
+# chaincodeQuery
