@@ -11,4 +11,6 @@ Before deploying the Chaincode, to configure the source code, locate the `artifa
 
 Finally, run the `./deployChaincode.sh` script. The script will generate the Chaincode executable and walk it through the Chaincode lifecycle to the invocation stage, where it can be queried by peers.
 
+To run the scripts to query transactions against the Chaincode definition, copy both the `chaincode/runQueries.sh` bash script and corresponding `chaincode/<chaincode>/run<chaincode>.sh` script into the `network` directory. Executing `run<chaincode>.sh` will run the queries against deployed chaincode.
+
 *Note*: The `./start.sh` script sequentially does the above.
