@@ -27,7 +27,7 @@ chaincodeQuery() {
     setGlobalsForPeer0Org1
     peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "RevealChoice","Args":["$GAMEID", "$KEY1", "$NONCE1"]}'
     setGlobalsForPeer0Org2
-    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "MakeCHoice","Args":["$GAMEID", "$KEY2", "$NONCE2"]}'
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "RevealCHoice","Args":["$GAMEID", "$KEY2", "$NONCE2"]}'
 
     # Determine Winner
     peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "DetermineWinner","Args":["$GAMEID"]}'
