@@ -15,6 +15,7 @@ This repository is organized as follows:
 **guides** contains:
 * Tutorials for setting up a test network and deploying code on it.
 * Tutorials for setting up a local network and deploying code on it.
+* Tutorials for writing SDK application code to interface with deployed Chaincode.
 
 **network** contains:
 * Source code for local Fabric network. Tutorial for setting it up is in *guides*.
