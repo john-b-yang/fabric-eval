@@ -47,7 +47,7 @@ TL;DR: In general, there shouldn't be any need to modify `populateWallet` or `ad
 ##### Part 2: Connect to the Network
 Once the peer wallets are created, they can be used to connect to the network through the `gateway` abstraction. The Fabric `gateway` is a class for managing and contextualizing network interactions on behalf of an application. By using a peer's identity, the gateway can determine how a peer should be connected to the network. There is comprehensive [documentation](https://godoc.org/github.com/hyperledger/fabric-sdk-go/pkg/gateway), but we will simply explain the most important functions that are invoked in our implementations, primarily in the second half of the `addNewUser` function
 * `NewFileSystemWallet`: Creates instance of wallet in memory (not persisted). The `path` parameter indicates where the Wallet object should be stored.
-* `NewZ509Identity`: Creates new X509 Identity (Key, Certificate) that is stored in the Wallet object.
+* `NewX509Identity`: Creates new X509 Identity (Key, Certificate) that is stored in the Wallet object.
 * `Connect`: Connects to a gateway. Parameters (config, identity, strategy) are options that determine the kind of connection the peer has to the network. For our purposes, we're just concerned with the peer being able to execute transactions. Returns a Gateway object.
 * `gw.GetNetwork`: Returns Network object representing corresponding network channel, found by name.
 * `network.GetContract`: Returns Contract object representing corresponding smart contract instance on Network object.
@@ -68,4 +68,4 @@ Transactions are initiated with the `contract.SubmitTransaction` function. The f
 * The `result` returned by `submit/evaluateTransaction` is a byte string of JSON data. If there are return values necessary to make forward progress in the application logic, JSON unmarshaling needs to be performed.
 
 ### Local Network Deployment
-Local deployment is quite simple. Simply copy the updated client source code to the `/network/` directory in a file that must be named `client.go`. Then, run the `runClient.sh` script, which simply performs `go run client.go` 
+Local deployment is quite simple. Simply copy the updated client source code to the `/network/` directory in a file that must be named `client.go`. Then, run the `runClient.sh` script, which simply performs `go run client.go`
