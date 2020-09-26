@@ -66,6 +66,7 @@ Transactions are initiated with the `contract.SubmitTransaction` function. The f
   * `evaluateTransaction`: Used for transactions that simply query the world state (no modifications).
   * Under the hood, `submitTransaction` requests will be sent to the orderer, which will then handle the execution and commit of the transaction. `evaluateTransaction` calls are not sent to the ordering service, and won't be committed to the ledger. Peers that have endorsed the contract will still execute it.
 * The `result` returned by `submit/evaluateTransaction` is a byte string of JSON data. If there are return values necessary to make forward progress in the application logic, JSON unmarshaling needs to be performed.
+* To pass in a `ClientIdentity` parameter, simply specify the `user` value that was used for the `credPath` (credentials path) value. Under the hood, the code will look for credentials associated with the username that it uses to verify the given identity.
 
 ### Local Network Deployment
 Local deployment is quite simple. Simply copy the updated client source code to the `/network/` directory in a file that must be named `client.go`. Then, run the `runClient.sh` script, which simply performs `go run client.go`

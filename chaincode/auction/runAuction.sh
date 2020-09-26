@@ -17,12 +17,12 @@ chaincodeInvokeAuction() {
 }
 
 chaincodeQuery() {
-  setGlobalsForPeer0Org1
+  setGlobalsForPeer0Org2
   peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "SubmitBid","Args":["100"]}'
 
   sleep 20
 
-  setGlobalsForPeer0Org2
+  setGlobalsForPeer0Org1
   peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "CloseBid","Args":[]}'
 }
 
